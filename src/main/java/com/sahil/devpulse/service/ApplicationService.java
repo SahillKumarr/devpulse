@@ -4,6 +4,7 @@ package com.sahil.devpulse.service;
 import com.sahil.devpulse.dto.request.RegisterAppRequest;
 import com.sahil.devpulse.dto.request.ThresholdRequest;
 import com.sahil.devpulse.dto.response.AppResponse;
+import com.sahil.devpulse.dto.response.ThresholdResponse;
 import com.sahil.devpulse.exception.DuplicateResourceException;
 import com.sahil.devpulse.exception.ResourceNotFoundException;
 import com.sahil.devpulse.model.Application;
@@ -82,6 +83,35 @@ public class ApplicationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Application", id));
         app.setStatus(status);
         applicationRepository.save(app);
+    }
+
+    @Transactional
+    public ThresholdResponse updateThresholds(Long appId, ThresholdRequest request) {
+        ThresholdConfig config = thresholdConfigRepository.findByApplicationId(appId)
+                .orElseThrow(() -> new ResourceNotFoundException("ThresholdConfig", appId));
+
+        if (request.maxCpuPercent() != null)
+            config.setMaxCpuPercent(request.maxCpuPercent());
+
+        if (request.maxMemoryPercent() != null)
+            config.setMaxMemoryPercent(request.maxMemoryPercent());
+
+        if (request.maxReponseTime() != null)                    // note: your DTO has a typo here — maxReponseTime
+            config.setMaxResponseTimeMs(request.maxReponseTime());
+
+        if (request.maxErrorRatePercent() != null)
+            config.setMaxErrorRatePercent(request.maxErrorRatePercent());
+
+        ThresholdConfig saved = thresholdConfigRepository.save(config);
+
+        return new ThresholdResponse(
+                saved.getId(),
+                appId,
+                saved.getMaxCpuPercent(),
+                saved.getMaxMemoryPercent(),
+                saved.getMaxResponseTimeMs(),
+                saved.getMaxErrorRatePercent()
+        );
     }
 
     // Entity → DTO conversion

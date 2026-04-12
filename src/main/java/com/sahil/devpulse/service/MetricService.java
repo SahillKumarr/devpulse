@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -49,12 +50,18 @@ public class MetricService {
         MetricSnapshot saved = metricSnapshotRepository.save(snapshot);
 
         // App status update karo — UP hai abhi
-        app.setStatus(AppStatus.HEALTHY);
+        AppStatus newStatus;
+        if (payload.cpuUsagePercent() > 95 || payload.memoryUsagePercent() > 95) {
+            newStatus = AppStatus.DOWN;
+        } else if (payload.cpuUsagePercent() > 80 || payload.memoryUsagePercent() > 85
+                || payload.responseTime() > 2000) {
+            newStatus = AppStatus.DEGRADED;
+        } else {
+            newStatus = AppStatus.HEALTHY;
+        }
+        app.setStatus(newStatus);
+        app.setLastCheckedAt(LocalDateTime.now());
         applicationRepository.save(app);
-
-        // Threshold check karo
-        thresholdConfigRepository.findByApplicationId(appId)
-                .ifPresent(config -> checkThresholds(app, payload, config));
 
         log.info("Metrics ingested for app: {} | CPU: {}% | Memory: {}%",
                 app.getName(), payload.cpuUsagePercent(), payload.memoryUsagePercent());
