@@ -10,7 +10,7 @@ public record MetricPayload(
         Double memoryUsagePercent,
 
         @NotNull(message="Reponse Time is required")
-        Double reopnseTime,
+        Double responseTime,
 
         Double errorRatePercent,      // optional
         Integer activeConnections
