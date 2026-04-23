@@ -63,6 +63,9 @@ public class MetricService {
         app.setLastCheckedAt(LocalDateTime.now());
         applicationRepository.save(app);
 
+        thresholdConfigRepository.findByApplicationId(appId)
+                .ifPresent(config -> checkThresholds(app, payload, config));
+
         log.info("Metrics ingested for app: {} | CPU: {}% | Memory: {}%",
                 app.getName(), payload.cpuUsagePercent(), payload.memoryUsagePercent());
 

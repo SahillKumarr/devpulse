@@ -17,7 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MetricController {
 
-    private MetricService metricService;
+
+    private final MetricService metricService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<MetricResponse>> ingest(@PathVariable Long appId, @Valid @RequestBody MetricPayload payload){

@@ -7,10 +7,7 @@ import com.sahil.devpulse.dto.response.AppResponse;
 import com.sahil.devpulse.service.AlertService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,7 +32,7 @@ public class AlertController {
         );
     }
 
-    @GetMapping("/{alertId}/resolve")
+    @PatchMapping("/{alertId}/resolve")
     public ResponseEntity<ApiResponse<AlertResponse>> resolve(@PathVariable Long appId,@PathVariable Long alertId){
         return ResponseEntity.ok(
                 ApiResponse.ok("Alert Resolved Successfully",alertService.resolveAlert(alertId))
